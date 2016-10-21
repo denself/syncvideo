@@ -1,0 +1,1 @@
+It's an application, designed to display synchronized video in few browsers.

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket demo</title>
+</head>
+<body>
+<div>
+    <p>Hello!</p>
+</div>
+<script>
+    var url = "ws://192.168.20.2:5678/chat";
+    messages = document.createElement('ul');
+    var ws;
+    function start(websocketServerLocation){
+        ws = new WebSocket(websocketServerLocation);
+        ws.onopen = function () {
+            console.log("Connection open");
+        };
+        ws.onmessage = function (event) {
+            console.log("Incomming message: " + event.data);
+            var messages = document.getElementsByTagName('ul')[0],
+                    message = document.createElement('li'),
+                    content = document.createTextNode(event.data);
+            message.appendChild(content);
+            messages.appendChild(message);
+        };
+        ws.onerror = function () {
+            console.log("Connection error")
+        };
+        ws.onclose = function(){
+            console.log("Connection closed");
+            setTimeout(function(){start(websocketServerLocation)}, 5000);
+    };
+}
+    start(url);
+    document.body.appendChild(messages);
+    send_message = function () {
+        var input = document.getElementById('text_input');
+        ws.send(input.value);
+        input.value = "";
+        return false;
+    };
+</script>
+<form id="message_form" onsubmit="return send_message()">
+    <input type="text" id="text_input">
+</form>
+<!--<button onclick="send_message()">Press</button>-->
+</body>
+</html>

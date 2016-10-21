@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>video</title>
+</head>
+<body>
+<video id="video" height="720" controls>
+    <source src="http://temp-cdn.datalock.ru/fi2lm/f877f45821bf40de47128f7ef130ee90/7f_Supernatural.S12E01.720p.HDTV.X264-[DreamRecords].a1.15.10.16.mp4"
+            type="video/mp4">
+    Your browser does not support the video tag.
+</video>
+</body>
+<script>
+    var url = "ws://192.168.20.2:5678/video";
+    var video = document.getElementById('video');
+    var ws;
+    function start(websocketServerLocation) {
+        ws = new WebSocket(websocketServerLocation);
+        ws.onopen = function () {
+            console.log("Connection open");
+        };
+        ws.onmessage = function (event) {
+            console.log("Incomming message: " + event.data);
+            var obj = JSON.parse(event.data);
+            video.currentTime = obj.timestamp;
+            if (obj.command == "play")
+                video.play();
+            else if (obj.command == "pause")
+                video.pause()
+        };
+        ws.onerror = function () {
+            console.log("Connection error")
+        };
+        ws.onclose = function () {
+            console.log("Connection closed");
+            setTimeout(function () {
+                start(websocketServerLocation)
+            }, 5000);
+        };
+    }
+    start(url);
+    video.addEventListener("play", function () {
+        var command = {
+            command: "play",
+            timestamp: video.currentTime
+        };
+        ws.send(JSON.stringify(command))
+    });
+    video.addEventListener("pause", function () {
+        var command = {
+            command: "pause",
+            timestamp: video.currentTime
+        };
+        ws.send(JSON.stringify(command))
+    });
+    video.addEventListener()
+</script>
+</html>
